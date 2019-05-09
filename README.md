@@ -1,7 +1,7 @@
 # mtop
 Minimalistic top command for Unix-like systems that simplifies the top and free commands.
 
-## Usage
+## usage
 ```
 mtop [time] [user]
 ```
