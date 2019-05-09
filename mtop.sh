@@ -1,0 +1,36 @@
+#!/bin/bash
+
+clear
+
+GREPFILTER=${2:-'all'}
+NUMBERLINES=${3:-15}
+REFRESHTIME=${1:-1} 
+          
+while true
+do      
+        printf "%s\n\n" "$(date)"
+             
+        top -bn 1 | grep 'Cpu(s)' | awk '{ printf("CPU utilization = \t %-4s %% \033[K \n", (100-$8) ); }'  | head -n 1
+        free -h | grep -w -F 'Mem: ' | awk '{ printf("MEM free        = \t %-4s %% \033[K \n", (100*$4/$2) ); }'
+        free -h | grep -w -F 'Mem: ' | awk '{ printf("MEM utilization = \t %-4s %% \033[K \n", (100*$3/$2) ); }'
+    
+        printf '\n'
+
+        if [ "$GREPFILTER" = 'all' ]
+                then
+                        top -bn 1 | grep '^ ' | awk '{ printf("\033[4m%-8s  %-8s  %-8s  %-8s  %-8s %-8s  \033[m  \n", $1, $2, $8, $9, $10, $12); }'  | head -n 1
+                        top -bn 1 | grep '^ ' | awk '{ printf("%-8s  %-8s  %-8s  %-8s  %-8s  %-8s \033[K \n", $1, $2, $8, $9, $10, $12); }' | head -n $((++NUMBERLINES)) | tail -n $NUMBERLINES
+        fi
+        if [ "$GREPFILTER" != 'all' ]
+                then
+                        top -bn 1 | grep '^ ' | awk '{ printf("\033[4m%-8s  %-8s  %-8s  %-8s  %-8s %-8s  \033[m  \n", $1, $2, $8, $9, $10, $12); }'  | head -n 1
+                        top -bn 1 | grep $GREPFILTER | awk '{ printf("%-8s  %-8s  %-8s  %-8s  %-8s  %-8s \033[K \n", $1, $2, $8, $9, $10, $12); }' | head -n $((++NUMBERLINES)) | tail -n $NUMBERLINES
+        fi
+        printf '\n'
+        free -h | head -n 1 | awk '{ printf("\t  %-8s  %-8s  %-8s  \033[K \n", $1, $2, $3); }'
+        free -h | grep -w -F 'Mem: ' | awk '{ printf("%-8s  %-8s  %-8s  %-8s  \033[K \n", $1, $2, $3, $4); }'
+        free -h | grep -w -F 'Swap: ' | awk '{ printf("%-8s  %-8s  %-8s  %-8s  \033[K \n", $1, $2, $3, $4); }'
+        sleep $REFRESHTIME
+
+        printf '\033[f'
+done
