@@ -4,7 +4,7 @@ clear
 
 GREPFILTER=${2:-'all'}
 NUMBERLINES=${3:-15}
-REFRESHTIME=${1:-1} 
+REFRESHTIME=${1:-3} 
           
 while true
 do      
