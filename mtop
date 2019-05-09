@@ -14,8 +14,8 @@ do
 	top_out=$(top -bn 1)
 	free_out=$(free -h)
              
-        echo "$top_out" | grep 'Cpu(s)' | awk '{ printf("CPU utilization = \t %-4s %% \033[K \n", (100-$8) ); }'  | head -n 1
-        echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("MEM free        = \t %-4s %% \033[K \n", (100*$4/$2) ); }'
+        echo "$top_out" | grep 'Cpu(s)' | awk '{ printf("%% CPU utilization = \t %-2s \033[K \n", (100-$8) ); }'  | head -n 1
+        echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%% MEM free        = \t %-2s \033[K \n", (100*$4/$2) ); }'
     
         printf '\n'
 
