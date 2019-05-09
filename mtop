@@ -21,12 +21,12 @@ do
 
         if [ "$GREPFILTER" = 'all' ]
                 then
-                        echo "$top_out" | grep '^ ' | awk '{ printf("\033[4m%-8s  %-8s  %-8s  %-8s  %-8s %-8s  \033[m  \n", $1, $2, $8, $9, $10, $12); }'  | head -n 1
+                        echo "$top_out" | grep '^ ' | awk '{ printf("\033[4m%-8s  %-8s  %-8s  %-8s  %-8s  %-8s  \033[m  \n", $1, $2, $8, $9, $10, $12); }'  | head -n 1
                         echo "$top_out" | grep '^ ' | awk '{ printf("%-8s  %-8s  %-8s  %-8s  %-8s  %-8s \033[K \n", $1, $2, $8, $9, $10, $12); }' | head -n $((++NUMBERLINES)) | tail -n $NUMBERLINES
         fi
         if [ "$GREPFILTER" != 'all' ]
                 then
-                        echo "$top_out" | grep '^ ' | awk '{ printf("\033[4m%-8s  %-8s  %-8s  %-8s  %-8s %-8s  \033[m  \n", $1, $2, $8, $9, $10, $12); }'  | head -n 1
+                        echo "$top_out" | grep '^ ' | awk '{ printf("\033[4m%-8s  %-8s  %-8s  %-8s  %-8s  %-8s  \033[m  \n", $1, $2, $8, $9, $10, $12); }'  | head -n 1
                         echo "$top_out" | grep $GREPFILTER | awk '{ printf("%-8s  %-8s  %-8s  %-8s  %-8s  %-8s \033[K \n", $1, $2, $8, $9, $10, $12); }' | head -n $((++NUMBERLINES)) | tail -n $NUMBERLINES
         fi
         printf '\n'
