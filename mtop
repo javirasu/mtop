@@ -30,7 +30,7 @@ do
 			-m | --mode	)	shift
 						MODE=$1
 						;;
-			-h | --help     )       usage
+			--help     )       usage
 						exit
 						;;
 			* ) 			break 
@@ -113,13 +113,15 @@ do
 		i=0
 		user_list=$(echo "$top_out" | grep '^[0-9]' | awk '{printf("%8s\n",  $2);}' | sort -u )
 
+		
+
 		for user in $user_list
 		do
 			# print other user's CPU usage in parallel but skip own one because
 			# spawning many processes will increase our CPU usage significantly
 			if [ "$user" = "$own" ]; then continue; fi
 			(top -b -n 1 -u "$user" | awk -v user=$user -v CPUS=$cpus 'NR>7 { sum_cpu += $9; sum_mem += $10 } END { printf("%8s \t %6.2f \t %6.2f \033[K \n", user, sum_cpu, sum_mem); }') &
-			# don't spawn too many processes in parallel
+			# append to wait for the procesii
 			pid[$i]=$!
 			i=$((i+1))
 		done
