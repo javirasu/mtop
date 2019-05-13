@@ -11,11 +11,11 @@ usage()
 	printf 'DESCRIPTION \n\t'
 	printf '\tmtop provides a minimalistic dynamic real-time view of a running system. It can display several modes, all of them intended to have a clean view of the system processes. \n'
 	printf 'COMMAND-LINE Options \n'
-	printf '\t-i, --interval \n\t\tseconds between command outputs \n\t'
-	printf '\t-p, --pattern \n\t\tpattern to filter the processes in monitor mode \n\t'
-	printf '\t-l, --lines \n\t\tlines to display in monitor mode \n\t'
-	printf '\t-m, --mode \n\t\tselect in which mode to run \n\t'
-	printf '\t--help \n\t\tdisplay this help and exit \n\t'
+	printf '\t-i, --interval \n\t\tseconds between command outputs \n'
+	printf '\t-p, --pattern \n\t\tpattern to filter the processes in monitor mode \n'
+	printf '\t-l, --lines \n\t\tlines to display in monitor mode \n'
+	printf '\t-m, --mode \n\t\tselect in which mode to run \n'
+	printf '\t--help \n\t\tdisplay this help and exit \n'
 	printf 'MODES \n\t'
 	printf 'monitor  - shows CPU, Memory and processes running in the system \n\t'
 	printf 'min \t  - minimalistic mode shows only CPU and Memory \n\t'
@@ -23,7 +23,7 @@ usage()
 	printf 'OPERATION \n\t'
 	printf 'while mtop is running in monitor or aggregated mode, there are several keys that can be used to modify the program behaviour: \n\t\t'
 	printf 'c \t order processes by CPU usage \n\t\t'
-	printf 'm \t order processes by Memory consumption \n\t\t'
+	printf 'm \t order processes by Memory consumption \n'
 
 	
 }
