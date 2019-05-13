@@ -1,5 +1,5 @@
 **NAME**<br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mtop - minimalist top command line <br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mtop - minimalist display Linux processes <br/>
 
 **SYNOPSIS**<br/>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mtop [OPTION]<br/> 
