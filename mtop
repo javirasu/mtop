@@ -46,25 +46,26 @@ do
 	stty -echo
 
 	if [ "$MODE" = 'monitor' ]; then      
-		printf "%s\n\n" "$(date)"
+		printf '%s \t\t\t %s \n\n' "$(date)" "$(id -nu)"
 
 		top_out=$(top -bn 1)
 		free_out=$(free -h)
 		     
-		echo "$top_out" | awk 'NR>7 { sum += $9; } END {printf("%% CPU usage  = \t %-2s \033[K \n", sum);	}'
-		echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%% MEM free   = \t %-2s \033[K \n", (100*$4/$2) ); }'
+		echo "$top_out" | awk 'NR>7 { sum += $9; } END {printf("%% CPU usage  = \t %6.2f \033[K \n", sum);	}'
+		echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%% MEM free   = \t %6.2f \033[K \n", (100*$4/$2) ); }'
 	    
 		printf '\n'
 
 		if [ "$GREPFILTER" = 'all' ]
 			then
 				echo "$top_out" | grep '^[0-9 ]' | awk '{ printf("\033[4m%-8s  %-8s  %-8s  %-8s  %-8s  %-8s  \033[m  \n", $1, $2, $8, $9, $10, $12); }'  | head -n 1
-				echo "$top_out" | grep '^[0-9 ]' | awk '{ printf("%-8s  %-8s  %-8s  %-8s  %-8s  %-8s \033[K \n", $1, $2, $8, $9, $10, $12); }' | head -n $((++NUMBERLINES)) | tail -n $NUMBERLINES
+				echo "$top_out" | grep '^[0-9 ]' | awk '{ printf("%-8s  %-8s  %-8s  %-8s  %-8s  %-8s \033[K \n", $1, $2, $8, $9, $10, $12); }' | sort -rgk$((ORDERVAL+2)) | head -n $((++NUMBERLINES)) | tail -n $NUMBERLINES
 		fi
 		if [ "$GREPFILTER" != 'all' ]
 			then
 				echo "$top_out" | grep '^[0-9 ]' | awk '{ printf("\033[4m%-8s  %-8s  %-8s  %-8s  %-8s  %-8s  \033[m  \n", $1, $2, $8, $9, $10, $12); }'  | head -n 1
-				echo "$top_out" | grep $GREPFILTER | awk '{ printf("%-8s  %-8s  %-8s  %-8s  %-8s  %-8s \033[K \n", $1, $2, $8, $9, $10, $12); }' | head -n $((++NUMBERLINES)) | tail -n $NUMBERLINES
+				echo "$top_out" | grep $GREPFILTER | awk '{ printf("%-8s  %-8s  %-8s  %-8s  %-8s  %-8s \033[K \n", $1, $2, $8, $9, $10, $12); }' | sort -rgk$((ORDERVAL+2)) | head -n $((++NUMBERLINES)) | tail -n $NUMBERLINES
+
 		fi
 		printf '\n'
 		echo "$free_out" | head -n 1 | awk '{ printf("\t  %-8s  %-8s  %-8s  \033[K \n", $1, $2, $3); }'
@@ -76,14 +77,14 @@ do
 
 
 	if [ "$MODE" = 'min' ]; then
-		printf "%s\n\n" "$(date)"
+		printf '%s \t\t\t %s \n\n' "$(date)" "$(id -nu)"
 
 		top_out=$(top -bn 1)
 		free_out=$(free -h)
 		    
 
-		echo "$top_out" | awk 'NR>7 { sum += $9; } END {printf("%% CPU usage  = \t %-2s \033[K \n", sum);	}'
-		echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%% MEM free   = \t %-2s \033[K \n", (100*$4/$2) ); }'
+		echo "$top_out" | awk 'NR>7 { sum += $9; } END {printf("%% CPU usage  = \t %6.2f \033[K \n", sum);	}'
+		echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%% MEM free   = \t %6.2f \033[K \n", (100*$4/$2) ); }'
 	    
 		printf '\n'
 
@@ -96,8 +97,8 @@ do
 		top_out=$(top -bn 1 -o %CPU)
 		free_out=$(free -h)
 		     
-		echo "$top_out" | awk 'NR>7 { sum += $9; } END {printf("%% CPU usage  = \t %-2s \033[K \n", sum);	}'
-		echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%% MEM free   = \t %-2s \033[K \n", (100*$4/$2) ); }'
+		echo "$top_out" | awk 'NR>7 { sum += $9; } END {printf("%% CPU usage  = \t %6.2f \033[K \n", sum);	}'
+		echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%% MEM free   = \t %6.2f \033[K \n", (100*$4/$2) ); }'
 
 		printf '\n\n\n'
 		printf '\033[4m%8s \t %6s \t %6s\033[m\n' 'USER' '%%CPU' '%%MEM'
