@@ -14,6 +14,7 @@ GREPFILTER='all'
 NUMBERLINES=10
 REFRESHTIME=3
 MODE='monitor'
+ORDERVAL=2 
 
 while [ '$1' != '' ] 
 do
@@ -40,12 +41,11 @@ done
 
 clear
 
-
 while true
 do
-	if [ "$MODE" = 'monitor' ]; then
+	stty -echo
 
-		stty -echo      
+	if [ "$MODE" = 'monitor' ]; then      
 		printf "%s\n\n" "$(date)"
 
 		top_out=$(top -bn 1)
@@ -76,8 +76,6 @@ do
 
 
 	if [ "$MODE" = 'min' ]; then
-
-		stty -echo      
 		printf "%s\n\n" "$(date)"
 
 		top_out=$(top -bn 1)
@@ -93,18 +91,16 @@ do
 
 
 	if [ "$MODE" = 'agg' ]; then
-
-		stty -echo      
 		printf '%s \t\t\t %s \n\n' "$(date)" "$(id -nu)" 
 
-		top_out=$(top -bn 1)
+		top_out=$(top -bn 1 -o %CPU)
 		free_out=$(free -h)
 		     
 		echo "$top_out" | awk 'NR>7 { sum += $9; } END {printf("%% CPU usage  = \t %-2s \033[K \n", sum);	}'
 		echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%% MEM free   = \t %-2s \033[K \n", (100*$4/$2) ); }'
 
 		printf '\n\n\n'
-		printf '\033[4m%8s \t %4s \t %4s\033[m\n' 'USER' '%%CPU' '%%MEM'
+		printf '\033[4m%8s \t %6s \t %6s\033[m\n' 'USER' '%%CPU' '%%MEM'
 
 		own=$(id -nu)
 		cpus=$(lscpu | grep "^CPU(s):" | awk '{print $2}')
@@ -113,14 +109,14 @@ do
 		i=0
 		user_list=$(echo "$top_out" | grep '^[0-9]' | awk '{printf("%8s\n",  $2);}' | sort -u )
 
-		
+		user_output=''
 
 		for user in $user_list
 		do
 			# print other user's CPU usage in parallel but skip own one because
 			# spawning many processes will increase our CPU usage significantly
 			if [ "$user" = "$own" ]; then continue; fi
-			(top -b -n 1 -u "$user" | awk -v user=$user -v CPUS=$cpus 'NR>7 { sum_cpu += $9; sum_mem += $10 } END { printf("%8s \t %6.2f \t %6.2f \033[K \n", user, sum_cpu, sum_mem); }') &
+			user_output+=$(top -b -n 1 -u "$user" | awk -v user=$user -v CPUS=$cpus 'NR>7 { sum_cpu += $9; sum_mem += $10 } END { printf("%8s %6.2f %6.2f ,", user, sum_cpu, sum_mem); }')
 			# append to wait for the procesii
 			pid[$i]=$!
 			i=$((i+1))
@@ -130,18 +126,23 @@ do
 		do
 			wait ${pid[$i]}
 		done
+		
+		if [ "$user_in" = "c" ]; then ORDERVAL=2; fi
+		if [ "$user_in" = "m" ]; then ORDERVAL=3; fi
+
+		# ORDERVAL   2 -> cpu 3 -> mem 
 
 		# print own CPU usage after all spawned processes completed
-		(top -b -n 1 -u "$own" | awk -v user=$own -v CPUS=$cpus 'NR>7 { sum_cpu += $9; sum_mem += $10 } END { printf("\033[1m%8s \t %4.2f \t %4.2f \033[K \033[m \n", user, sum_cpu, sum_mem); }') &
-		sleep 0.005
-		wait $!
+		user_output+=$(top -b -n 1 -u "$own" | awk -v user=$own -v CPUS=$cpus 'NR>7 { sum_cpu += $9; sum_mem += $10 } END { printf("%8s %6.2f %6.2f ,", user, sum_cpu, sum_mem); }')
+
+		printf "$user_output" | awk '{ for (i = 1; i <= 100; i++){ if ($i != "") { if (i%4 == 1){ printf("%8s ",$i);} if (i%4 == 2){ printf("%6.2f ",$i); }  if (i%4 == 3){ printf("%6.2f \n",$i); }    }}}' | sort -rgk$ORDERVAL | awk '{ for (i = 1; i <= 100; i++){ if ($i != "") { if (i%4 == 1){ printf("%8s \t ",$i);} if (i%4 == 2){ printf("%6.2f \t ",$i); }  if (i%4 == 3){ printf("%6.2f \n",$i); }    }}}'
 
 		printf '\033[K'
 		
 	fi
-
-	sleep $REFRESHTIME
+	
+	stty echo
+	read -st $REFRESHTIME user_in    
 
         printf '\033[H'
-        stty echo
 done
