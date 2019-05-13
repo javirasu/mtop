@@ -4,29 +4,38 @@ export LC_ALL=C.UTF-8
 
 usage()
 {
-	printf 'NAME \n\t'
+	clear
+	printf '\n\033[3mNAME\033[m \n\t'
 	printf 'mtop - minimalist top command line \n'
-	printf 'SYNOPSIS \n\t'
+	printf '\n\033[3mSYNOPSIS\033[m\n\t'
 	printf 'mtop [\033[4mOPTION\033[m] \n'
-	printf 'DESCRIPTION \n\t'
-	printf '\tmtop provides a minimalistic dynamic real-time view of a running system. It can display several modes, all of them intended to have a clean view of the system processes. \n'
-	printf 'COMMAND-LINE Options \n'
+	printf '\n\033[3mDESCRIPTION\033[m\n'
+	printf 'mtop provides a minimalistic dynamic real-time view of a running system. It can display several modes, all of them intended to have a clean view of the system processes. \n\n'
+	printf '\n\033[3mCOMMAND-LINE Options\033[m\n'
+	printf 'The command-line syntax for mtop consists of:\n'
 	printf '\t-i, --interval \n\t\tseconds between command outputs \n'
 	printf '\t-p, --pattern \n\t\tpattern to filter the processes in monitor mode \n'
 	printf '\t-l, --lines \n\t\tlines to display in monitor mode \n'
 	printf '\t-m, --mode \n\t\tselect in which mode to run \n'
 	printf '\t--help \n\t\tdisplay this help and exit \n'
-	printf 'MODES \n\t'
+	printf '\n\033[3mMODES\033[m\n'
+	printf 'different running modes are supported when using the --m (--mode) command line option:\n\t'
 	printf 'monitor  - shows CPU, Memory and processes running in the system \n\t'
-	printf 'min \t  - minimalistic mode shows only CPU and Memory \n\t'
+	printf 'min \t - minimalistic mode shows only CPU and Memory \n\t'
 	printf 'agg \t - aggregate CPU and Memory by user in the system \n'
-	printf 'OPERATION \n\t'
+	printf '\n\033[3mOPERATION\033[m\n'
 	printf 'while mtop is running in monitor or aggregated mode, there are several keys that can be used to modify the program behaviour: \n\t\t'
+	printf '\033[4mkey \t description\033[m\n\t\t'
 	printf 'c \t order processes by CPU usage \n\t\t'
-	printf 'm \t order processes by Memory consumption \n'
+	printf 'm \t order processes by Memory consumption \n\t\t'
+	printf 'q \t quit'
 
-	
+	printf '\n\n\n'
 }
+
+
+
+trap "printf '\033[u' ; clear ; stty echo ; exit " INT
 
 ##### MAIN
 
@@ -35,6 +44,7 @@ NUMBERLINES=10
 REFRESHTIME=3
 MODE='monitor'
 ORDERVAL=2 
+printf '\033[s'
 
 while [ '$1' != '' ] 
 do
@@ -50,6 +60,7 @@ do
 						;;
 			-m | --mode	)	shift
 						MODE=$1
+						REFRESHTIME=2
 						;;
 			--help     )       usage
 						exit
@@ -68,29 +79,34 @@ do
 	if [ "$MODE" = 'monitor' ]; then      
 		printf '%s \t\t\t %s \n\n' "$(date)" "$(id -nu)"
 
-		top_out=$(top -bn 1)
+		if [ "$ORDERVAL" = 2 ]; then
+			top_out=$(top -bn 1 -o %CPU)
+		fi
+		if [ "$ORDERVAL" = 3 ]; then
+                        top_out=$(top -bn 1 -o %MEM)                                                                                                                   
+		fi
 		free_out=$(free -h)
 		     
-		echo "$top_out" | awk 'NR>7 { sum += $9; } END {printf("%% CPU usage  = \t %6.2f \033[K \n", sum);	}'
-		echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%% MEM free   = \t %6.2f \033[K \n", (100*$4/$2) ); }'
+		echo "$top_out" | awk 'NR>7 { sum += $9; } END {printf("%% CPU usage  = \t %7.2f \033[K \n", sum);	}'
+		echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%% MEM free   = \t %7.2f \033[K \n", (100*$4/$2) ); }'
 	    
 		printf '\n'
 
 		if [ "$GREPFILTER" = 'all' ]
 			then
-				echo "$top_out" | grep '^[0-9 ]' | awk '{ printf("\033[4m%-8s  %-8s  %-8s  %-8s  %-8s  %-8s  \033[m  \n", $1, $2, $8, $9, $10, $12); }'  | head -n 1
-				echo "$top_out" | grep '^[0-9 ]' | awk '{ printf("%-8s  %-8s  %-8s  %-8s  %-8s  %-8s \033[K \n", $1, $2, $8, $9, $10, $12); }' | sort -rgk$((ORDERVAL+2)) | head -n $((++NUMBERLINES)) | tail -n $NUMBERLINES
+				echo "$top_out" | grep '^[0-9 ]' | awk '{ printf("\033[4m%10s %8s %2s %7s %7s %15s  \033[m  \n", $1, $2, $8, $9, $10, $12); }'  | head -n 1
+				echo "$top_out" | grep '^[0-9 ]' | awk '{ printf("%10s %8s %2s %7.2f %7.2f %15s \033[K \n", $1, $2, $8, $9, $10, $12); }' |  head -n $((++NUMBERLINES)) | tail -n $NUMBERLINES
 		fi
 		if [ "$GREPFILTER" != 'all' ]
 			then
-				echo "$top_out" | grep '^[0-9 ]' | awk '{ printf("\033[4m%-8s  %-8s  %-8s  %-8s  %-8s  %-8s  \033[m  \n", $1, $2, $8, $9, $10, $12); }'  | head -n 1
-				echo "$top_out" | grep $GREPFILTER | awk '{ printf("%-8s  %-8s  %-8s  %-8s  %-8s  %-8s \033[K \n", $1, $2, $8, $9, $10, $12); }' | sort -rgk$((ORDERVAL+2)) | head -n $((++NUMBERLINES)) | tail -n $NUMBERLINES
+				echo "$top_out" | grep '^[0-9 ]' | awk '{ printf("\033[4m%10s %8s %2s %7s %7s %15s  \033[m  \n", $1, $2, $8, $9, $10, $12); }'  | head -n 1
+				echo "$top_out" | grep $GREPFILTER | awk '{ printf("%10s %8s %2s %7.2f %7.2f %15s \033[K \n", $1, $2, $8, $9, $10, $12); }' | head -n $((++NUMBERLINES)) | tail -n $NUMBERLINES
 
 		fi
 		printf '\n'
-		echo "$free_out" | head -n 1 | awk '{ printf("\t  %-8s  %-8s  %-8s  \033[K \n", $1, $2, $3); }'
-		echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%-8s  %-8s  %-8s  %-8s  \033[K \n", $1, $2, $3, $4); }'
-		echo "$free_out" | grep -w -F 'Swap: ' | awk '{ printf("%-8s  %-8s  %-8s  %-8s  \033[K \n", $1, $2, $3, $4); }'
+		echo "" | awk '{ printf("%10s %8s %8s %8s \033[K \n", "", "TOTAL", "USED", "FREE"); }'
+		echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%10s %8s %8s %8s  \033[K \n", $1, $2, $3, $4); }'
+		echo "$free_out" | grep -w -F 'Swap: ' | awk '{ printf("%10s %8s %8s %8s  \033[K \n", $1, $2, $3, $4); }'
 		
 	fi
 
@@ -103,8 +119,8 @@ do
 		free_out=$(free -h)
 		    
 
-		echo "$top_out" | awk 'NR>7 { sum += $9; } END {printf("%% CPU usage  = \t %6.2f \033[K \n", sum);	}'
-		echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%% MEM free   = \t %6.2f \033[K \n", (100*$4/$2) ); }'
+		echo "$top_out" | awk 'NR>7 { sum += $9; } END {printf("%% CPU usage  = \t %7.2f \033[K \n", sum);	}'
+		echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%% MEM free   = \t %7.2f \033[K \n", (100*$4/$2) ); }'
 	    
 		printf '\n'
 
@@ -115,19 +131,17 @@ do
 		printf '%s \t\t\t %s \n\n' "$(date)" "$(id -nu)" 
 
 		top_out=$(top -bn 1 -o %CPU)
-		free_out=$(free -h)
-		     
-		echo "$top_out" | awk 'NR>7 { sum += $9; } END {printf("%% CPU usage  = \t %6.2f \033[K \n", sum);	}'
-		echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%% MEM free   = \t %6.2f \033[K \n", (100*$4/$2) ); }'
 
-		printf '\n\n\n'
-		printf '\033[4m%8s \t %6s \t %6s\033[m\n' 'USER' '%%CPU' '%%MEM'
+		#free_out=$(free -h)
+		     
+		#echo "$top_out" | awk 'NR>7 { sum += $9; } END {printf("%% CPU usage  = \t %8.2f \033[K \n", sum);	}'
+		#echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%% MEM free   = \t %8.2f \033[K \n", (100*$4/$2) ); }'
+
+		printf '\033[4m%8s\t %7s\t %7s\033[m\n' 'USER' '%%CPU' '%%MEM'
 
 		own=$(id -nu)
 		cpus=$(lscpu | grep "^CPU(s):" | awk '{print $2}')
 
-		pid=()
-		i=0
 		user_list=$(echo "$top_out" | grep '^[0-9]' | awk '{printf("%8s\n",  $2);}' | sort -u )
 
 		user_output=''
@@ -137,15 +151,8 @@ do
 			# print other user's CPU usage in parallel but skip own one because
 			# spawning many processes will increase our CPU usage significantly
 			if [ "$user" = "$own" ]; then continue; fi
-			user_output+=$(top -b -n 1 -u "$user" | awk -v user=$user -v CPUS=$cpus 'NR>7 { sum_cpu += $9; sum_mem += $10 } END { printf("%8s %6.2f %6.2f ,", user, sum_cpu, sum_mem); }')
-			# append to wait for the procesii
-			pid[$i]=$!
-			i=$((i+1))
-		done
+			user_output+=$(top -b -n 1 -u "$user" | awk -v user=$user -v CPUS=$cpus 'NR>7 { sum_cpu += $9; sum_mem += $10 } END { printf("%8s %7.2f %7.2f ,", user, sum_cpu, sum_mem); }')
 		
-		for i in ${#pid[@]}
-		do
-			wait ${pid[$i]}
 		done
 		
 		if [ "$user_in" = "c" ]; then ORDERVAL=2; fi
@@ -154,9 +161,9 @@ do
 		# ORDERVAL   2 -> cpu 3 -> mem 
 
 		# print own CPU usage after all spawned processes completed
-		user_output+=$(top -b -n 1 -u "$own" | awk -v user=$own -v CPUS=$cpus 'NR>7 { sum_cpu += $9; sum_mem += $10 } END { printf("%8s %6.2f %6.2f ,", user, sum_cpu, sum_mem); }')
+		user_output+=$(top -b -n 1 -u "$own" | awk -v user=$own -v CPUS=$cpus 'NR>7 { sum_cpu += $9; sum_mem += $10 } END { printf("%8s %7.2f %7.2f ,", user, sum_cpu, sum_mem); }')
 
-		printf "$user_output" | awk '{ for (i = 1; i <= 100; i++){ if ($i != "") { if (i%4 == 1){ printf("%8s ",$i);} if (i%4 == 2){ printf("%6.2f ",$i); }  if (i%4 == 3){ printf("%6.2f \n",$i); }    }}}' | sort -rgk$ORDERVAL | awk '{ for (i = 1; i <= 100; i++){ if ($i != "") { if (i%4 == 1){ printf("%8s \t ",$i);} if (i%4 == 2){ printf("%6.2f \t ",$i); }  if (i%4 == 3){ printf("%6.2f \n",$i); }    }}}'
+		printf "$user_output" | awk '{ for (i = 1; i <= 100; i++){ if ($i != "") { if (i%4 == 1){ printf("%8s ",$i);} if (i%4 == 2){ printf("%7.2f ",$i); }  if (i%4 == 3){ printf("%7.2f \n",$i); }    }}}' | sort -rgk$ORDERVAL | awk '{ for (i = 1; i <= 100; i++){ if ($i != "") { if (i%4 == 1){ printf("%8s \t ",$i);} if (i%4 == 2){ printf("%7.2f \t ",$i); }  if (i%4 == 3){ printf("%7.2f \n",$i); }    }}}'
 
 		printf '\033[K'
 		
@@ -165,9 +172,10 @@ do
 	stty echo
 	read -sn1 -t $REFRESHTIME user_in    
 
-	if [ "$user_in" = "q" ]; then exit; fi
+	if [ "$user_in" = "q" ]; then printf '\033[u' ; clear; stty echo ; exit; fi
 	if [ "$user_in" = "c" ]; then ORDERVAL=2; fi                                                             
         if [ "$user_in" = "m" ]; then ORDERVAL=3; fi   # ORDERVAL   2 -> cpu 3 -> mem
 
         printf '\033[H'
 done
+
