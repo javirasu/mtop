@@ -142,7 +142,11 @@ do
 	fi
 	
 	stty echo
-	read -st $REFRESHTIME user_in    
+	read -sn1 -t $REFRESHTIME user_in    
+
+	if [ "$user_in" = "q" ]; then exit; fi
+	if [ "$user_in" = "c" ]; then ORDERVAL=2; fi                                                             
+        if [ "$user_in" = "m" ]; then ORDERVAL=3; fi   # ORDERVAL   2 -> cpu 3 -> mem
 
         printf '\033[H'
 done
