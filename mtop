@@ -7,7 +7,7 @@ usage()
 {
 	clear
 	printf '\n\033[3mNAME\033[m \n\t'
-	printf 'mtop - minimalist top command line \n'
+	printf 'mtop - minimalist display Linux processes \n'
 	printf '\n\033[3mSYNOPSIS\033[m\n\t'
 	printf 'mtop [\033[4mOPTION\033[m] \n'
 	printf '\n\033[3mDESCRIPTION\033[m\n'
