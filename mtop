@@ -7,7 +7,7 @@ usage()
 {
 	clear
 	printf '\n\033[3mNAME\033[m \n\t'
-	printf 'mtop - minimalist display Linux processes \n'
+	printf 'mtop - minimalist top command line \n'
 	printf '\n\033[3mSYNOPSIS\033[m\n\t'
 	printf 'mtop [\033[4mOPTION\033[m] \n'
 	printf '\n\033[3mDESCRIPTION\033[m\n'
@@ -25,10 +25,10 @@ usage()
 	printf 'min \t - minimalistic mode shows only CPU and Memory \n\t'
 	printf 'agg \t - aggregate CPU and Memory by user in the system \n'
 	printf '\n\033[3mOPERATION\033[m\n'
-	printf 'while mtop is running in monitor or aggregated mode, there are several keys that can be used to modify the program behaviour: \n\t\t'
-	printf '\033[4mkey \t description\033[m\n\t\t'
-	printf 'c \t order processes by CPU usage \n\t\t'
-	printf 'm \t order processes by Memory consumption \n\t\t'
+	printf 'while mtop is running in monitor or aggregated mode, there are several keys that can be used to modify the program behaviour: \n\t'
+	printf '\033[4mkey \t description\033[m\n\t'
+	printf 'c \t order processes by CPU usage \n\t'
+	printf 'm \t order processes by Memory consumption \n\t'
 	printf 'q \t quit'
 
 	printf '\n\n\n'
