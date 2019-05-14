@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 export LC_ALL=C.UTF-8
 
 usage()
@@ -132,12 +133,12 @@ do
 
 		top_out=$(top -bn 1 -o %CPU)
 
-		#free_out=$(free -h)
+		free_out=$(free -h)
 		     
-		#echo "$top_out" | awk 'NR>7 { sum += $9; } END {printf("%% CPU usage  = \t %8.2f \033[K \n", sum);	}'
-		#echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%% MEM free   = \t %8.2f \033[K \n", (100*$4/$2) ); }'
+		echo "$top_out" | awk 'NR>7 { sum += $9; } END {printf("%% CPU usage  = \t %8.2f \033[K \n", sum);	}'
+		echo "$free_out" | grep -w -F 'Mem: ' | awk '{ printf("%% MEM free   = \t %8.2f \033[K \n", (100*$4/$2) ); }'
 
-		printf '\033[4m%8s\t %7s\t %7s\033[m\n' 'USER' '%%CPU' '%%MEM'
+		printf '\n\n\033[4m%8s\t %7s\t %7s\033[m\n' 'USER' '%%CPU' '%%MEM'
 
 		own=$(id -nu)
 		cpus=$(lscpu | grep "^CPU(s):" | awk '{print $2}')
@@ -150,18 +151,12 @@ do
 		do
 			# print other user's CPU usage in parallel but skip own one because
 			# spawning many processes will increase our CPU usage significantly
-			if [ "$user" = "$own" ]; then continue; fi
-			user_output+=$(top -b -n 1 -u "$user" | awk -v user=$user -v CPUS=$cpus 'NR>7 { sum_cpu += $9; sum_mem += $10 } END { printf("%8s %7.2f %7.2f ,", user, sum_cpu, sum_mem); }')
+			user_output+=$(echo "$top_out" | grep $user | awk -v user=$user '{ sum_cpu += $9; sum_mem += $10 } END { printf("%8s %7.2f %7.2f ,", user, sum_cpu, sum_mem); }')
 		
 		done
 		
 		if [ "$user_in" = "c" ]; then ORDERVAL=2; fi
 		if [ "$user_in" = "m" ]; then ORDERVAL=3; fi
-
-		# ORDERVAL   2 -> cpu 3 -> mem 
-
-		# print own CPU usage after all spawned processes completed
-		user_output+=$(top -b -n 1 -u "$own" | awk -v user=$own -v CPUS=$cpus 'NR>7 { sum_cpu += $9; sum_mem += $10 } END { printf("%8s %7.2f %7.2f ,", user, sum_cpu, sum_mem); }')
 
 		printf "$user_output" | awk '{ for (i = 1; i <= 100; i++){ if ($i != "") { if (i%4 == 1){ printf("%8s ",$i);} if (i%4 == 2){ printf("%7.2f ",$i); }  if (i%4 == 3){ printf("%7.2f \n",$i); }    }}}' | sort -rgk$ORDERVAL | awk '{ for (i = 1; i <= 100; i++){ if ($i != "") { if (i%4 == 1){ printf("%8s \t ",$i);} if (i%4 == 2){ printf("%7.2f \t ",$i); }  if (i%4 == 3){ printf("%7.2f \n",$i); }    }}}'
 
