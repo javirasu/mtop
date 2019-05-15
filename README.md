@@ -1,5 +1,5 @@
 **NAME**<br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mtop - minimalist process monitor for Unix-based systems  <br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mtop - minimalist process monitor for Unix systems  <br/>
 
 **SYNOPSIS**<br/>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mtop [OPTION]<br/> 
