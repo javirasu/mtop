@@ -1,5 +1,5 @@
 **NAME**<br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mtop - minimalist display Linux processes <br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mtop - minimalist process monitor for Unix-based systems  <br/>
 
 **SYNOPSIS**<br/>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mtop [OPTION]<br/> 
